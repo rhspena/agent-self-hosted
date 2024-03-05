@@ -2,13 +2,13 @@
 set -e
 
 if [ -z "$AZP_URL" ]; then
-  echo 1>&2 "error: missing AZP_URL environment variable"
+  echo 1>&2 "error: olvido la variable de ambiente AZP_URL"
   exit 1
 fi
 
 if [ -z "$AZP_TOKEN_FILE" ]; then
   if [ -z "$AZP_TOKEN" ]; then
-    echo 1>&2 "error: missing AZP_TOKEN environment variable"
+    echo 1>&2 "error: olvido la variable de ambiente AZP_TOKEN"
     exit 1
   fi
 
@@ -24,14 +24,14 @@ fi
 
 cleanup() {
   if [ -e config.sh ]; then
-    print_header "Cleanup. Removing Azure Pipelines agent..."
+    print_header "Limpiar. Eliminando el agente de Azure Pipelines..."
 
     # If the agent has some running jobs, the configuration removal process will fail.
     # So, give it some time to finish the job.
     while true; do
       ./config.sh remove --unattended --auth PAT --token $(cat "$AZP_TOKEN_FILE") && break
 
-      echo "Retrying in 30 seconds..."
+      echo "Reintentando en 30 segundos..."
       sleep 30
     done
   fi
@@ -48,11 +48,11 @@ export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
 
 source ./env.sh
 
-print_header "Configuring Azure Pipelines agent..."
+print_header "Configurando el agente Azure Pipelines..."
 
 # Determine if proxy variables are set
 if [[ -z "$AZP_PROXY_URL" ]]; then
-  print_header "Configured agent without proxy"
+  print_header "Agente configurado sin proxy"
   ./config.sh --unattended \
     --agent "${AZP_AGENT_NAME:-$HOSTNAME}" \
     --url "$AZP_URL" \
@@ -64,7 +64,7 @@ if [[ -z "$AZP_PROXY_URL" ]]; then
     --acceptTeeEula & wait $!
 
 elif [[ -z "$AZP_PROXY_USERNAME" || -z "$AZP_PROXY_PASSWORD" ]]; then
-  print_header "Configured agent to use unauthenticated proxy: $AZP_PROXY_URL"
+  print_header "Agente configurado para usar proxy no autenticado: $AZP_PROXY_URL"
   ./config.sh --unattended \
     --agent "${AZP_AGENT_NAME:-$HOSTNAME}" \
     --url "$AZP_URL" \
@@ -77,7 +77,7 @@ elif [[ -z "$AZP_PROXY_USERNAME" || -z "$AZP_PROXY_PASSWORD" ]]; then
     --acceptTeeEula & wait $!
 
 else
-  print_header "Configured agent to use authenticated proxy: $AZP_PROXY_URL"
+  print_header "Agente configurado para usar proxy autenticado: $AZP_PROXY_URL"
   ./config.sh --unattended \
     --agent "${AZP_AGENT_NAME:-$HOSTNAME}" \
     --url "$AZP_URL" \
@@ -94,7 +94,7 @@ fi
 
 unset AZP_PROXY_URL AZP_PROXY_USERNAME AZP_PROXY_PASSWORD
 
-print_header "Running Azure Pipelines agent..."
+print_header "Ejecutando el agente de Azure Pipelines..."
 
 trap 'cleanup; exit 0' EXIT
 trap 'cleanup; exit 130' INT
